@@ -20,12 +20,15 @@ class CommonModel(models.Model):
 class Asset(CommonModel):
 
     class ModeChoices(models.TextChoices):
-        fixed_income = "fixed-income" "Renda fixa"
-        variable_income = "variable-income" "Renda Variável"
-        crypto = "crypto" "Cripto Moeda"
+        fixed_income = "fixed-income", "Renda fixa"
+        variable_income = "variable-income", "Renda Variável"
+        crypto = "crypto", "Cripto Moeda"
 
     name = models.CharField(max_length=100)
     mode = models.CharField(max_length=100, choices=ModeChoices.choices)
+
+    def __str__(self):
+        return "{} - {}".format(self.name, self.get_mode_display())
 
 
 class Transaction(CommonModel):
@@ -35,3 +38,6 @@ class Transaction(CommonModel):
     ip_address = models.CharField(max_length=15)
     request_date = models.DateTimeField()
     is_redemption = models.BooleanField()
+
+    def __str__(self):
+        return "{} - {}".format(self.asset, self.ip_address)
