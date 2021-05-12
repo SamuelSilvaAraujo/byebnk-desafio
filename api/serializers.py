@@ -1,4 +1,5 @@
-from rest_framework.serializers import ModelSerializer
+from django.db.models import Sum, DecimalField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from .models import Asset, Transaction
 
@@ -13,7 +14,8 @@ class CreatedAssetSerializer(ModelSerializer):
         )
 
     def create(self, validated_data):
-        instance = Asset.objects.create(**validated_data)
+        user = self.context['request'].user
+        instance = Asset.objects.create(**validated_data, created_by=user)
         return instance
 
 
@@ -41,7 +43,8 @@ class CreatedTransactionSerializer(ModelSerializer):
         )
 
     def create(self, validated_data):
-        instance = Transaction.objects.create(**validated_data)
+        user = self.context['request'].user
+        instance = Transaction.objects.create(**validated_data, created_by=user)
         return instance
 
 
@@ -58,3 +61,28 @@ class ListingTransactionSerializer(ModelSerializer):
             'is_redemption',
             'created_by',
         )
+
+
+class PortfolioSerializer(ModelSerializer):
+    transactions = ListingTransactionSerializer(many=True, read_only=True)
+    balance = SerializerMethodField()
+
+    class Meta:
+        model = Asset
+        fields = (
+            'id',
+            'name',
+            'transactions',
+            'balance',
+        )
+
+    def get_balance(self, obj):
+        redemptions = obj.transactions \
+                          .filter(is_redemption=True) \
+                          .aggregate(total=Sum('id', field="unit_price * amount",
+                                               output_field=DecimalField()))['total'] or 0
+        investments = obj.transactions \
+                          .filter(is_redemption=False) \
+                          .aggregate(total=Sum('id', field="unit_price * amount",
+                                               output_field=DecimalField()))['total'] or 0
+        return investments - redemptions

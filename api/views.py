@@ -13,7 +13,7 @@ class CreatedAssetView(CreateAPIView):
     serializer_class = CreatedAssetSerializer
 
 
-class ListingAssetView(ListAPIView):
+class ListingAllAssetView(ListAPIView):
     permission_classes = (
         IsAuthenticated,
     )
@@ -37,19 +37,11 @@ class CreatedTransactionView(CreateAPIView):
     serializer_class = CreatedTransactionSerializer
 
 
-class ListingTransactionView(ListAPIView):
-    serializer_class = ListingTransactionSerializer
+class PortfolioView(ListAPIView):
     permission_classes = (
         IsAuthenticated,
     )
+    serializer_class = PortfolioSerializer
 
     def get_queryset(self):
-        q_objects = Q(created_by=self.request.user)
-
-        is_redemption_filter = self.request.query_params.get('is_redemption_filter')
-
-        if is_redemption_filter:
-            q_objects.add(Q(is_redemption=is_redemption_filter), Q.AND)
-
-        qs = Transaction.objects.filter(q_objects)
-        return qs
+        return Asset.objects.filter(transactions__created_by=self.request.user)

@@ -10,7 +10,7 @@ class CommonModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, editable=False, verbose_name="Criado em")
     updated_at = models.DateTimeField(auto_now=True, editable=False, verbose_name="Atualizado em")
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, editable=False)
 
     class Meta:
         abstract = True
@@ -32,7 +32,7 @@ class Asset(CommonModel):
 
 
 class Transaction(CommonModel):
-    asset = models.ForeignKey(Asset, on_delete=models.PROTECT)
+    asset = models.ForeignKey(Asset, on_delete=models.PROTECT, related_name="transactions")
     amount = models.IntegerField()
     unit_price = models.DecimalField(decimal_places=2, max_digits=12)
     ip_address = models.CharField(max_length=15)
