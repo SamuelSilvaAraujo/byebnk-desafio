@@ -99,7 +99,7 @@ class PortfolioTestCase(TestCase):
         response = self.client.get(reverse('api:portfolio'))
         self.assertEqual(response.status_code, 401)
 
-    def test_portfolio_authorized(self):
+    def test_get_portfolio(self):
         header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token)}
         response = self.client.get(reverse('api:portfolio'), **header)
         self.assertEqual(response.status_code, 200)
