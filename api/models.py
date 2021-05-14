@@ -35,7 +35,7 @@ class Transaction(CommonModel):
     asset = models.ForeignKey(Asset, on_delete=models.PROTECT, related_name="transactions")
     amount = models.IntegerField()
     unit_price = models.DecimalField(decimal_places=2, max_digits=12)
-    ip_address = models.CharField(max_length=15)
+    ip_address = models.IPAddressField()
     request_date = models.DateTimeField()
     is_redemption = models.BooleanField()
 

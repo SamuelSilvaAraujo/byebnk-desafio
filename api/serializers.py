@@ -10,7 +10,6 @@ class CreatedAssetSerializer(ModelSerializer):
         fields = (
             'name',
             'mode',
-            'created_by',
         )
 
     def create(self, validated_data):
@@ -36,15 +35,14 @@ class CreatedTransactionSerializer(ModelSerializer):
             'asset',
             'amount',
             'unit_price',
-            'ip_address',
             'request_date',
             'is_redemption',
-            'created_by',
         )
 
     def create(self, validated_data):
         user = self.context['request'].user
-        instance = Transaction.objects.create(**validated_data, created_by=user)
+        ip_address = self.context['request'].META.remot_addr
+        instance = Transaction.objects.create(**validated_data, created_by=user, ip_address=ip_address)
         return instance
 
 
